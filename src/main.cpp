@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <iostream>
 #ifndef WIN32
 #  include <unistd.h>
 #endif
@@ -76,6 +77,27 @@ static void add_transfer(CURLM *cm, int i)
   curl_multi_add_handle(cm, eh);
 }
 
+
+static void download_page(void)
+{
+    FILE *fp;
+    CURLcode res;
+    std::string url = "https://stackoverflow.com";
+    std::cout << "downloading " << url << std::endl;
+    char outfilename[FILENAME_MAX] = "page.html";
+    CURL *curl = curl_easy_init();                                                                                                                                                                                                                                                           
+    if (curl)
+    {   
+      fp = fopen(outfilename,"wb");
+      curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+      curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
+      curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+      res = curl_easy_perform(curl);
+      curl_easy_cleanup(curl);
+      fclose(fp);
+    }
+}
+
 int main(void)
 {
   CURLM *cm;
@@ -119,6 +141,8 @@ int main(void)
 
   curl_multi_cleanup(cm);
   curl_global_cleanup();
+
+  download_page();
 
   return EXIT_SUCCESS;
 }
